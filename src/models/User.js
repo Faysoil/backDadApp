@@ -1,13 +1,17 @@
+//User.js
+
 const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
 
 const userSchema = new mongoose.Schema({
   firstName: { type: String, required: true },
   lastName: { type: String, required: true },
-  trigram: { type: String, required: true, unique: true },
+  trigram: { type: String, required: true },
   email: { type: String, required: true, unique: true },
   password: { type: String, required: true },
+  userId: { type: String, unique: true, default: () => new mongoose.Types.ObjectId() } // Génère un ID unique
 });
+
 
 // Hash le mot de passe avant de sauvegarder
 userSchema.pre('save', async function (next) {
