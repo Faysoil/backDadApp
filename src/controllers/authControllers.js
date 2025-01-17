@@ -1,66 +1,45 @@
-//authController.js
-
 const User = require('../models/User');
 const bcrypt = require('bcrypt');
-const jwt = require('jsonwebtoken');
+const jwt = require('../utils/jwtUtils');
 
 // Inscription
-// exports.register = async (req, res) => {
-//   try {
-//     const { name, email, password } = req.body;
+exports.register = async (req, res) => {
+  try {
+    const { firstName, lastName, email, password } = req.body;
 
-//     // Vérifier si l'utilisateur existe déjà
-//     const existingUser = await User.findOne({ email });
-//     if (existingUser) {
-//       return res.status(400).json({ message: 'Utilisateur déjà existant' });
-//     }
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
+      return res.status(400).json({ message: 'Utilisateur déjà existant' });
+    }
 
-//     // Hash du mot de passe
-//     const hashedPassword = await bcrypt.hash(password, 10);
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const newUser = new User({ firstName, lastName, email, password: hashedPassword });
+    await newUser.save();
 
-//     // Créer un nouvel utilisateur
-//     const newUser = new User({ name, email, password: hashedPassword });
-//     await newUser.save();
-
-//     res.status(201).json({ message: 'Utilisateur créé avec succès' });
-//   } catch (error) {
-//     res.status(500).json({ message: 'Erreur serveur' });
-//   }
-// };
+    res.status(201).json({ message: 'Utilisateur créé avec succès' });
+  } catch (error) {
+    res.status(500).json({ message: 'Erreur serveur', error });
+  }
+};
 
 // Connexion
 exports.login = async (req, res) => {
-  const { email, password } = req.body;
-  console.log('Email reçu:', email);  // Log pour vérifier ce qui est envoyé
-
   try {
+    const { email, password } = req.body;
+
     const user = await User.findOne({ email });
-    if (!user) {
-      console.log('Utilisateur non trouvé');
-      return res.status(404).json({ message: "Utilisateur non trouvé" });
-    }
+    if (!user) return res.status(404).json({ message: 'Utilisateur non trouvé' });
 
     const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) {
-      console.log('Mot de passe incorrect');
-      return res.status(401).json({ message: "Mot de passe incorrect" });
-    }
+    if (!isMatch) return res.status(401).json({ message: 'Mot de passe incorrect' });
 
-    const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, { expiresIn: '1h' });
-
-    // Envoyer les informations de l'utilisateur et le token
+    const token = jwt.generateToken(user._id);
     res.status(200).json({
-      message: "Connexion réussie",
+      message: 'Connexion réussie',
       token,
-      user: { 
-        firstName: user.firstName, 
-        lastName: user.lastName,
-        email: user.email,
-        trigram: user.trigram
-      }
+      user: { firstName: user.firstName, lastName: user.lastName, email: user.email, trigram: user.trigram },
     });
   } catch (error) {
-    console.log('Erreur serveur', error);
-    res.status(500).json({ message: "Erreur serveur", error });
+    res.status(500).json({ message: 'Erreur serveur', error });
   }
 };

@@ -1,16 +1,17 @@
 const express = require('express');
 const cors = require('cors');
-const bodyParser = require('body-parser');
-const authRoutes = require('./routes/auth');
+const authRoutes = require('./routes/authRoutes');
+const userRoutes = require('./routes/userRoutes');
+const connectDB = require('./config/db');
 
 const app = express();
+connectDB();
 
-// Middlewares
-app.use(cors());
-app.use(express.json());  // Middleware pour parser le JSON dans les requêtes
+app.use(cors({ origin: 'http://localhost:3000' }));
+app.use(express.json());
 
-
-// Routes
-app.use('/api', authRoutes);  // <-- Assure-toi que cette ligne existe
+app.use('/api/auth', authRoutes);
+app.use('/api/users', userRoutes);
 
 module.exports = app;
+ 
