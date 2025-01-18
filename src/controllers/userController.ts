@@ -1,7 +1,7 @@
-const User = require('../models/User');
+import { Request, Response } from 'express';
+import User from '../models/User';
 
-// CREATE - Ajouter un utilisateur
-exports.createUser = async (req, res) => {
+export const createUser = async (req: Request, res: Response): Promise<void> => {
   try {
     const user = new User(req.body);
     await user.save();
@@ -11,8 +11,7 @@ exports.createUser = async (req, res) => {
   }
 };
 
-// READ - Lire tous les utilisateurs
-exports.getUsers = async (req, res) => {
+export const getUsers = async (req: Request, res: Response): Promise<void> => {
   try {
     const users = await User.find();
     res.status(200).json(users);
@@ -21,8 +20,7 @@ exports.getUsers = async (req, res) => {
   }
 };
 
-// UPDATE - Mettre à jour un utilisateur
-exports.updateUser = async (req, res) => {
+export const updateUser = async (req: Request, res: Response): Promise<void> => {
   try {
     const updatedUser = await User.findByIdAndUpdate(req.params.id, req.body, { new: true });
     res.status(200).json({ message: 'Utilisateur mis à jour avec succès', updatedUser });
@@ -31,8 +29,7 @@ exports.updateUser = async (req, res) => {
   }
 };
 
-// DELETE - Supprimer un utilisateur
-exports.deleteUser = async (req, res) => {
+export const deleteUser = async (req: Request, res: Response): Promise<void> => {
   try {
     await User.findByIdAndDelete(req.params.id);
     res.status(200).json({ message: 'Utilisateur supprimé avec succès' });
