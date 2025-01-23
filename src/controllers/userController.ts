@@ -20,6 +20,21 @@ export const getUsers = async (req: Request, res: Response): Promise<void> => {
   }
 };
 
+export const getUserById = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const user = await User.findById(req.params.id);
+
+    if (!user) {
+      res.status(404).json({ message: "Utilisateur introuvable" });
+      return;
+    }
+
+    res.status(200).json(user);
+  } catch (error) {
+    res.status(500).json({ message: "Erreur lors de la récupération de l'utilisateur", error });
+  }
+};
+
 export const updateUser = async (req: Request, res: Response): Promise<void> => {
   try {
     const updatedUser = await User.findByIdAndUpdate(req.params.id, req.body, { new: true });

@@ -3,6 +3,7 @@ import cors from 'cors';
 import authRoutes from './routes/authRoutes';
 import userRoutes from './routes/userRoutes';
 import connectDB from './config/db';
+import prospectRoutes from './routes/prospectsRoutes';
 
 const app: Application = express();
 
@@ -16,5 +17,6 @@ app.use(express.json());
 // Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
+app.use('/api/prospects', prospectRoutes);
 
 export default app;
