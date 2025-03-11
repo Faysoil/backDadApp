@@ -46,7 +46,7 @@ export const login = async (req: Request, res: Response): Promise<void> => {
     res.status(200).json({
       message: 'Connexion réussie',
       token,
-      user: { _id: user._id, firstName: user.firstName, lastName: user.lastName, email: user.email, trigram: user.trigram },
+      user: { _id: user._id, userId: user.userId, firstName: user.firstName, lastName: user.lastName, email: user.email, trigram: user.trigram },
     });
   } catch (error) {
     res.status(500).json({ message: 'Erreur serveur', error });

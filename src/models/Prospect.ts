@@ -1,3 +1,5 @@
+// models/Prospect.ts
+
 import mongoose, { Schema, Document } from 'mongoose';
 
 export interface IProspect extends Document {
@@ -30,9 +32,9 @@ const ProspectSchema = new Schema<IProspect>(
     phone: { type: String, required: true },
     mail: { type: String, required: true },
     website: { type: String, required: true },
-    sector: { type: String, required: true },
+    sector: { type: String, default: null },
     interest: { type: String, required: true },
-    action: { type: String, required: true },
+    action: { type: String, default: null },
     comment: { type: String },
     postalSector: {
       code: { type: String },

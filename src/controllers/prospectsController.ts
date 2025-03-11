@@ -1,33 +1,39 @@
+// controller/prospectController.ts
 import { Request, Response } from 'express';
 import { Prospect } from '../models/Prospect';
+import { Types } from 'mongoose'; 
 
 // GET /prospects
+// controller/prospectController.ts
+
 export const getProspects = async (req: Request, res: Response) => {
   try {
-    const userId = req.body?._id // Accès correct au champ `userId`
+    // Recherche de tous les prospects sans condition particulière
+    const prospects = await Prospect.find();
 
-    // if (!userId) {
-    //   return res.status(401).json({ message: 'Utilisateur non authentifié' });
-    // }
+    if (!prospects || prospects.length === 0) {
+      return res.status(404).json({ message: 'Aucun prospect trouvé' });
+    }
 
-    const prospects = await Prospect.find({ userId });
     res.json(prospects);
   } catch (error) {
+    console.error(error);
     res.status(500).json({ message: 'Erreur lors de la récupération des prospects' });
   }
 };
 
 
+
 // POST /prospects
 export const createProspect = async (req: Request, res: Response) => {
   try {
-    const { name, managerName, address, phone, mail, website, sector, interest, action, comment, postalSector, appointmentDate, appointmentTime } = req.body;
+    const { name, managerName, address, phone, mail, website, sector, interest, action, comment, postalSector, appointmentDate, appointmentTime, userId } = req.body;
 
-    const userId = req.body?._id;
-    // if (!userId) {
-    //   return res.status(401).json({ message: 'Utilisateur non authentifié' });
-    // }
-
+    // Conversion de `userId` en ObjectId
+    if (!Types.ObjectId.isValid(userId)) {
+      return res.status(400).json({ message: 'userId invalide' });
+    }
+    
     const newProspect = new Prospect({
       name,
       managerName,
@@ -42,12 +48,13 @@ export const createProspect = async (req: Request, res: Response) => {
       postalSector,
       appointmentDate,
       appointmentTime,
-      userId,
+      userId: new Types.ObjectId(userId),  // Conversion ici
     });
 
     const savedProspect = await newProspect.save();
     res.status(201).json(savedProspect);
   } catch (error) {
+    console.error(error);
     res.status(500).json({ message: 'Erreur lors de la création du prospect' });
   }
 };
@@ -56,9 +63,9 @@ export const createProspect = async (req: Request, res: Response) => {
 export const deleteProspect = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    const userId = req.body?._id;
+    //const userId = req.body?._id;
 
-    const prospect = await Prospect.findOneAndDelete({ _id: id, userId });
+    const prospect = await Prospect.findOneAndDelete({ _id: id });
     if (!prospect) {
       return res.status(404).json({ message: 'Prospect non trouvé ou non autorisé' });
     }
@@ -73,24 +80,29 @@ export const deleteProspect = async (req: Request, res: Response) => {
 export const updateProspect = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    const userId = req.body?._id;
+    const userId = req.body?.userId; // Récupération correcte de userId
 
-    // Les champs modifiables du prospect
-    const updatedFields = req.body;
+    if (!Types.ObjectId.isValid(id)) {
+      return res.status(400).json({ message: 'ID prospect invalide' });
+    }
 
-    // On vérifie que le prospect existe et que l'utilisateur a l'autorisation de le modifier
-    const updatedProspect = await Prospect.findOneAndUpdate(
-      { _id: id, userId }, // Vérifier que l'utilisateur peut modifier ce prospect
-      updatedFields, // Mettre à jour uniquement les champs spécifiés dans la requête
-      { new: true } // Retourner le prospect mis à jour
-    );
-
-    if (!updatedProspect) {
+    // Vérification que le prospect appartient à l'utilisateur
+    const existingProspect = await Prospect.findOne({ _id: id, userId });
+    if (!existingProspect) {
       return res.status(404).json({ message: 'Prospect non trouvé ou non autorisé' });
     }
 
+    // Mise à jour du prospect
+    const updatedProspect = await Prospect.findByIdAndUpdate(
+      id,
+      { ...req.body, updatedAt: new Date() }, 
+      { new: true, runValidators: true }
+    );
+
     res.json(updatedProspect);
   } catch (error) {
+    console.error(error);
     res.status(500).json({ message: 'Erreur lors de la mise à jour du prospect' });
   }
 };
+

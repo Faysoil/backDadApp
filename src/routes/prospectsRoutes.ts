@@ -1,3 +1,4 @@
+// routes/prospectRoutes.ts
 import express, { Request, Response } from 'express';
 import { getProspects, createProspect, deleteProspect, updateProspect } from '../controllers/prospectsController';
 
