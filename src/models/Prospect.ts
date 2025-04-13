@@ -22,6 +22,7 @@ export interface IProspect extends Document {
   createdAt: Date;
   updatedAt: Date;
   userId: mongoose.Types.ObjectId;
+  routeStopId?: mongoose.Types.ObjectId;
 }
 
 const ProspectSchema = new Schema<IProspect>(
@@ -43,9 +44,10 @@ const ProspectSchema = new Schema<IProspect>(
     appointmentDate: { type: Date },
     appointmentTime: { type: String },
     userId: { type: Schema.Types.ObjectId, ref: 'User', required: true },
+    routeStopId: { type: Schema.Types.ObjectId, ref: 'RouteStop', default: null },
   },
   {
-    timestamps: true, // Automatically manage createdAt and updatedAt
+    timestamps: true,
   }
 );
 

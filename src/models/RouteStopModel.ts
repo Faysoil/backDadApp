@@ -7,6 +7,7 @@ const routeStopSchema = new mongoose.Schema({
   phone: { type: String, default: null },
   notes: { type: String, default: null },
   completed: { type: Boolean, required: true },
+  isOptimized: { type: Boolean, required: true, default: false },
   contactType: { type: String, required: true },
   appointmentDate: { type: String, default: null },
   appointmentTime: { type: String, default: null },
@@ -14,6 +15,6 @@ const routeStopSchema = new mongoose.Schema({
   managerName: { type: String, default: null },
   email: { type: String, default: null },
   updatedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null },
-}, { timestamps: true });
+  prospectId: { type: mongoose.Schema.Types.ObjectId, ref: 'Prospect', default: null },}, { timestamps: true });
 
 export default mongoose.model('RouteStop', routeStopSchema);
